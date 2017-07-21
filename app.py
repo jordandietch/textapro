@@ -10,7 +10,7 @@ def hello_monkey():
 
     response = MessagingResponse()
     message = Message()
-    message.body('Hello World')
+    message.body('Text a pro test response!')
     response.append(message)
     return str(response)
 
