@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form method="POST" action="/">
+        {{ form.csrf_token }}
+        {{ form.telephone.label }} {{ form.telephone(size=16) }}
+        <input type="submit" value="Go">
+    </form>
+
+</body>
+</html>
