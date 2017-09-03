@@ -79,10 +79,9 @@ def thank_you():
 def pro_response():
     """Respond to incoming calls with a simple text message."""
     from_number = request.values.get('From')
-    print(from_number)
     response = MessagingResponse()
     message = Message()
-    message.body('Text a pro test response!')
+    message.body('Text a pro test response from %s!' % from_number)
     response.append(message)
     return str(response)
 
