@@ -16,9 +16,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 mail = Mail(app)
 app.secret_key = 's3cr3t'
-account_sid = "ACbf835e6507e16f25dd94f020295f21d3"
-auth_token = "9c82b2d0d3d321d8d9216ae0578c2e0e"
-twilio_client = Client(account_sid, auth_token)
+ACCOUNT_SID = os.environ.get('ACCOUNT_SID')
+AUTH_TOKEN = os.environ.get('AUTH_TOKEN')
+twilio_client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
 from models import Lead
 from _email import send_email
