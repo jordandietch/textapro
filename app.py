@@ -1,4 +1,4 @@
-from flask import current_app, Flask, flash, redirect, render_template, request
+from flask import current_app, Flask, flash, redirect, render_template, request, session
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -77,11 +77,32 @@ def thank_you():
 
 @app.route("/pro-response", methods=['GET', 'POST'])
 def pro_response():
-    """Respond to incoming calls with a simple text message."""
-    from_number = request.values.get('From')
+    # Increment the counter
+    counter = session.get('counter', 0)
+    counter += 1
+
+    # Save the new counter value in the session
+    session['counter'] = counter
+
     response = MessagingResponse()
     message = Message()
-    message.body('Text a pro test response from %s!' % from_number)
+
+    from_number = request.values.get('From')
+    from_body = request.values.get('Body')
+    check_telephone = Lead.query.filter_by(telephone=from_number).first()
+
+    if check_telephone is None:
+        db.session.add(Lead(from_number))
+        db.session.commit()
+        message.body('Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel')
+    elif from_body.lower() == 'yes':
+        message.body('Thanks for verifying your number. We will connect you with a contractor shortly')
+    elif from_body.lower == 'no':
+        message.body('Ok we\'ve cancelled your request')
+    elif session['counter'] >= 3:
+        pass
+    else:
+        message.body('Sorry, text Yes to continue or No to cancel')
     response.append(message)
     return str(response)
 
