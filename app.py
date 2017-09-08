@@ -101,8 +101,8 @@ def pro_response():
         db.session.add(Lead(from_body, from_number))
         db.session.commit()
         message.body('Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel')
-    elif session['counter'] >= 5:
-        pass
+    # elif session['counter'] >= 5:
+    #     pass
     elif get_timedelta(check_telephone.received_on).days >= 2:
         message.body('Hold tight. We are in the process of connecting you with a contractor.')
         session['counter'] = 5
