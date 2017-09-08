@@ -53,7 +53,7 @@ def index():
             form.validate_phone(telephone)
             check_telephone = Lead.query.filter_by(telephone=telephone.data).first()
             if check_telephone is None:
-                db.session.add(Lead(telephone.data))
+                db.session.add(Lead('Form submission', telephone.data))
                 db.session.commit()
                 twilio_client.messages.create(
                     to=telephone.data,
