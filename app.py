@@ -120,7 +120,7 @@ def pro_response():
         check_telephone.is_verified = False
         db.session.add(check_telephone)
         db.session.commit()
-    else:
+    elif check_telephone.is_verified is False:
         message.body('We\'ve received your request, but please text Yes to continue or No to cancel')
 
     response.append(message)
