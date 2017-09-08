@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from flask import current_app, Flask, flash, redirect, render_template, request, session
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
@@ -23,6 +24,9 @@ twilio_client = Client(ACCOUNT_SID, AUTH_TOKEN)
 from models import Lead
 from _email import send_email
 
+
+def get_timedelta(a_datetime):
+    return datetime.today() - a_datetime
 
 class PhoneForm(FlaskForm):
     telephone = StringField('Telephone', validators=[DataRequired()])
@@ -84,6 +88,8 @@ def pro_response():
     # Save the new counter value in the session
     session['counter'] = counter
 
+    verified = session.get('verified', False)
+
     response = MessagingResponse()
     message = Message()
 
@@ -95,12 +101,25 @@ def pro_response():
         db.session.add(Lead(from_number))
         db.session.commit()
         message.body('Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel')
+    elif get_timedelta(check_telephone.received_on).days >= 2:
+        message.body('Hold tight. We are in the process of connecting you with a contractor.')
+        session['counter'] = 999
     elif from_body.lower() == 'yes':
         message.body('Thanks for verifying your number. We will connect you with a contractor shortly')
-    elif from_body.lower == 'no':
+        check_telephone.is_verified = True
+        db.session.add(check_telephone)
+        db.session.commit()
+    elif from_body.lower() == 'no':
         message.body('Ok we\'ve cancelled your request')
-    else:
-        message.body('Sorry, text Yes to continue or No to cancel')
+        check_telephone.is_verified = False
+        db.session.add(check_telephone)
+        db.session.commit()
+    elif check_telephone.is_verified is False or True:
+        pass
+    elif from_body.lower() != 'no' or 'yes':
+        message.body('We\'ve received your request, but please text Yes to continue or No to cancel')
+    elif session['counter'] >= 10:
+        pass
     response.append(message)
     return str(response)
 
