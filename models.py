@@ -10,7 +10,8 @@ class Lead(db.Model):
     received_on = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     telephone = db.Column(db.String())
 
-    def __init__(self, telephone):
+    def __init__(self, first_sms, telephone):
+        self.first_sms = first_sms
         self.telephone = telephone
 
     def __repr__(self):
