@@ -101,25 +101,28 @@ def pro_response():
         db.session.add(Lead(from_body, from_number))
         db.session.commit()
         message.body('Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel')
+    elif session['counter'] >= 5:
+        pass
     elif get_timedelta(check_telephone.received_on).days >= 2:
         message.body('Hold tight. We are in the process of connecting you with a contractor.')
-        session['counter'] = 999
-    elif from_body.lower() == 'yes':
+        session['counter'] = 5
+    elif from_body.lower() == 'yes' and check_telephone.is_verified is False:
         message.body('Thanks for verifying your number. We will connect you with a contractor shortly')
         check_telephone.is_verified = True
         db.session.add(check_telephone)
         db.session.commit()
-    elif from_body.lower() == 'no':
+    elif from_body.lower() == 'yes' and check_telephone.is_verified is True:
+        message.body('Hold tight. We are in the process of connecting you with a contractor.')
+    elif from_body.lower() == 'no' and check_telephone.is_verified is True:
+        pass
+    elif from_body.lower() == 'no' and check_telephone.is_verified is False:
         message.body('Ok we\'ve cancelled your request')
         check_telephone.is_verified = False
         db.session.add(check_telephone)
         db.session.commit()
-    elif check_telephone.is_verified is False or True:
-        pass
-    elif from_body.lower() != 'no' or 'yes':
+    else:
         message.body('We\'ve received your request, but please text Yes to continue or No to cancel')
-    elif session['counter'] >= 10:
-        pass
+
     response.append(message)
     return str(response)
 
