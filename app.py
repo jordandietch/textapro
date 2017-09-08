@@ -98,7 +98,7 @@ def pro_response():
     check_telephone = Lead.query.filter_by(telephone=from_number).first()
 
     if check_telephone is None:
-        db.session.add(Lead(from_number))
+        db.session.add(Lead(telephone=from_number, first_sms=from_body))
         db.session.commit()
         message.body('Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel')
     elif get_timedelta(check_telephone.received_on).days >= 2:
