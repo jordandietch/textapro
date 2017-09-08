@@ -99,8 +99,6 @@ def pro_response():
         message.body('Thanks for verifying your number. We will connect you with a contractor shortly')
     elif from_body.lower == 'no':
         message.body('Ok we\'ve cancelled your request')
-    elif session['counter'] >= 3:
-        pass
     else:
         message.body('Sorry, text Yes to continue or No to cancel')
     response.append(message)
