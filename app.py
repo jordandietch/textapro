@@ -58,7 +58,7 @@ def index():
                 twilio_client.messages.create(
                     to=telephone.data,
                     from_="+18057492645",
-                    body="Text a pro test response!")
+                    body="Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel")
                 send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Phone Number',
                            'mail/contact_me', telephone=telephone.data)
                 flash('Thank You')
@@ -79,6 +79,34 @@ def thank_you():
     return render_template('thank_you.html')
 
 
+def message_response(message, from_number, from_body, check_telephone):
+    if check_telephone is None:
+        db.session.add(Lead(from_body, from_number))
+        db.session.commit()
+        return 'Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel'
+    # elif session['counter'] >= 5:
+    #     pass
+    elif get_timedelta(check_telephone.received_on).days >= 2:
+        session['counter'] = 5
+        return 'Hold tight. We are in the process of connecting you with a contractor.'
+    elif from_body.lower() == 'yes' and check_telephone.is_verified is False:
+        check_telephone.is_verified = True
+        db.session.add(check_telephone)
+        db.session.commit()
+        return 'Thanks for verifying your number. We will connect you with a contractor shortly'
+    elif from_body.lower() == 'yes' and check_telephone.is_verified is True:
+        return 'Hold tight. We are in the process of connecting you with a contractor.'
+    elif from_body.lower() == 'no' and check_telephone.is_verified is True:
+        return ''
+    elif from_body.lower() == 'no' and check_telephone.is_verified is False:
+        check_telephone.is_verified = False
+        db.session.add(check_telephone)
+        db.session.commit()
+        return 'Ok we\'ve cancelled your request'
+    elif check_telephone.is_verified is False:
+        return 'We\'ve received your request, but please text Yes to continue or No to cancel'
+
+
 @app.route("/pro-response", methods=['GET', 'POST'])
 def pro_response():
     # Increment the counter
@@ -88,8 +116,6 @@ def pro_response():
     # Save the new counter value in the session
     session['counter'] = counter
 
-    verified = session.get('verified', False)
-
     response = MessagingResponse()
     message = Message()
 
@@ -97,31 +123,8 @@ def pro_response():
     from_body = request.values.get('Body')
     check_telephone = Lead.query.filter_by(telephone=from_number).first()
 
-    if check_telephone is None:
-        db.session.add(Lead(from_body, from_number))
-        db.session.commit()
-        message.body('Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel')
-    # elif session['counter'] >= 5:
-    #     pass
-    elif get_timedelta(check_telephone.received_on).days >= 2:
-        message.body('Hold tight. We are in the process of connecting you with a contractor.')
-        session['counter'] = 5
-    elif from_body.lower() == 'yes' and check_telephone.is_verified is False:
-        message.body('Thanks for verifying your number. We will connect you with a contractor shortly')
-        check_telephone.is_verified = True
-        db.session.add(check_telephone)
-        db.session.commit()
-    elif from_body.lower() == 'yes' and check_telephone.is_verified is True:
-        message.body('Hold tight. We are in the process of connecting you with a contractor.')
-    elif from_body.lower() == 'no' and check_telephone.is_verified is True:
-        pass
-    elif from_body.lower() == 'no' and check_telephone.is_verified is False:
-        message.body('Ok we\'ve cancelled your request')
-        check_telephone.is_verified = False
-        db.session.add(check_telephone)
-        db.session.commit()
-    elif check_telephone.is_verified is False:
-        message.body('We\'ve received your request, but please text Yes to continue or No to cancel')
+    message_body = message_response(message, from_number, from_body, check_telephone)
+    message.body(message_body)
 
     response.append(message)
     return str(response)
