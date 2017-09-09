@@ -127,7 +127,11 @@ def pro_response():
     message.body(message_body)
 
     response.append(message)
-    return str(response)
+    try:
+        return str(response)
+    except:
+        return '', 204
+
 
 
 if __name__ == '__main__':
