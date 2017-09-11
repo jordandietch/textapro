@@ -44,42 +44,7 @@ class PhoneForm(FlaskForm):
                 raise ValidationError('Invalid phone number.')
 
 
-@app.route('/', methods=('GET', 'POST'))
-def index():
-    form = PhoneForm()
-    if form.validate_on_submit():
-        try:
-            telephone = form.telephone
-            form.validate_phone(telephone)
-            check_telephone = Lead.query.filter_by(telephone=telephone.data).first()
-            if check_telephone is None:
-                db.session.add(Lead('Form submission', telephone.data))
-                db.session.commit()
-                twilio_client.messages.create(
-                    to=telephone.data,
-                    from_="+18057492645",
-                    body="Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel")
-                send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Phone Number',
-                           'mail/contact_me', telephone=telephone.data)
-                flash('Thank You')
-                return redirect('/thank-you')
-            else:
-                flash('Thank you for submitting. A contractor will reach out shortly.')
-                return redirect('/')
-        except Exception as e:
-            print(e)
-            flash('Please enter a valid phone number.')
-            return redirect('/')
-
-    return render_template('index.html', form=form)
-
-
-@app.route('/thank-you')
-def thank_you():
-    return render_template('thank_you.html')
-
-
-def message_response(message, from_number, from_body, check_telephone):
+def message_response(from_number, check_telephone, from_body='web form'):
     if check_telephone is None:
         db.session.add(Lead(from_body, from_number))
         db.session.commit()
@@ -97,7 +62,7 @@ def message_response(message, from_number, from_body, check_telephone):
     elif from_body.lower() == 'yes' and check_telephone.is_verified is True:
         return 'Hold tight. We are in the process of connecting you with a contractor.'
     elif from_body.lower() == 'no' and check_telephone.is_verified is True:
-        return ''
+        return None
     elif from_body.lower() == 'no' and check_telephone.is_verified is False:
         check_telephone.is_verified = False
         db.session.add(check_telephone)
@@ -105,6 +70,36 @@ def message_response(message, from_number, from_body, check_telephone):
         return 'Ok we\'ve cancelled your request'
     elif check_telephone.is_verified is False:
         return 'We\'ve received your request, but please text Yes to continue or No to cancel'
+
+
+@app.route('/', methods=('GET', 'POST'))
+def index():
+    form = PhoneForm()
+    if form.validate_on_submit():
+        try:
+            telephone = form.telephone
+            form.validate_phone(telephone)
+            check_telephone = Lead.query.filter_by(telephone=telephone.data).first()
+            message_body = message_response(telephone.data, check_telephone)
+            if message_body:
+                twilio_client.messages.create(
+                    to=telephone.data,
+                    from_="+18057492645",
+                    body=message_body)
+                send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Phone Number',
+                           'mail/contact_me', telephone=telephone.data)
+            flash('Thank You')
+            return redirect('/thank-you')
+        except:
+            flash('Please enter a valid phone number.')
+            return redirect('/')
+
+    return render_template('index.html', form=form)
+
+
+@app.route('/thank-you')
+def thank_you():
+    return render_template('thank_you.html')
 
 
 @app.route("/pro-response", methods=['GET', 'POST'])
@@ -123,10 +118,11 @@ def pro_response():
     from_body = request.values.get('Body')
     check_telephone = Lead.query.filter_by(telephone=from_number).first()
 
-    message_body = message_response(message, from_number, from_body, check_telephone)
+    message_body = message_response(from_number, check_telephone, from_body)
     message.body(message_body)
 
     response.append(message)
+
     try:
         return str(response)
     except:
