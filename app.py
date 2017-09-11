@@ -44,10 +44,13 @@ class PhoneForm(FlaskForm):
                 raise ValidationError('Invalid phone number.')
 
 
-def message_response(from_number, check_telephone, from_body='web form'):
+def message_response(from_number, from_body='web form'):
+    check_telephone = Lead.query.filter_by(telephone=from_number).first()
     if check_telephone is None:
         db.session.add(Lead(from_body, from_number))
         db.session.commit()
+        send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Phone Number',
+                   'mail/contact_me', telephone=from_number)
         return 'Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel'
     # elif session['counter'] >= 5:
     #     pass
@@ -79,15 +82,14 @@ def index():
         try:
             telephone = form.telephone
             form.validate_phone(telephone)
-            check_telephone = Lead.query.filter_by(telephone=telephone.data).first()
-            message_body = message_response(telephone.data, check_telephone)
+            message_body = message_response(telephone.data)
+            print(message_body)
             if message_body:
+                print(telephone.data)
                 twilio_client.messages.create(
                     to=telephone.data,
                     from_="+18057492645",
                     body=message_body)
-                send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Phone Number',
-                           'mail/contact_me', telephone=telephone.data)
             flash('Thank You')
             return redirect('/thank-you')
         except:
@@ -116,9 +118,8 @@ def pro_response():
 
     from_number = request.values.get('From')
     from_body = request.values.get('Body')
-    check_telephone = Lead.query.filter_by(telephone=from_number).first()
 
-    message_body = message_response(from_number, check_telephone, from_body)
+    message_body = message_response(from_number, from_number, from_body)
     message.body(message_body)
 
     response.append(message)
@@ -127,7 +128,6 @@ def pro_response():
         return str(response)
     except:
         return '', 204
-
 
 
 if __name__ == '__main__':
