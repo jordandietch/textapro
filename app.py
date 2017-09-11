@@ -7,9 +7,7 @@ import os
 import phonenumbers
 from twilio.twiml.messaging_response import Message, MessagingResponse
 from twilio.rest import Client
-from wtforms import StringField
-from wtforms import ValidationError
-from wtforms.validators import DataRequired
+from wtforms import StringField, ValidationError, validators
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -28,8 +26,9 @@ from _email import send_email
 def get_timedelta(a_datetime):
     return datetime.today() - a_datetime
 
+
 class PhoneForm(FlaskForm):
-    telephone = StringField('Telephone', validators=[DataRequired()])
+    telephone = StringField('Telephone', [validators.DataRequired()], )
 
     def validate_phone(self, field):
         if len(self.data) > 16:
@@ -52,10 +51,10 @@ def message_response(from_number, from_body='web form'):
         send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Phone Number',
                    'mail/contact_me', telephone=from_number)
         return 'Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel'
-    # elif session['counter'] >= 5:
-    #     pass
+    # elif session['counter'] >= 7:
+    #     return None
     elif get_timedelta(check_telephone.received_on).days >= 2:
-        session['counter'] = 5
+        session['counter'] = 7
         return 'Hold tight. We are in the process of connecting you with a contractor.'
     elif from_body.lower() == 'yes' and check_telephone.is_verified is False:
         check_telephone.is_verified = True
@@ -83,9 +82,7 @@ def index():
             telephone = form.telephone
             form.validate_phone(telephone)
             message_body = message_response(telephone.data)
-            print(message_body)
             if message_body:
-                print(telephone.data)
                 twilio_client.messages.create(
                     to=telephone.data,
                     from_="+18057492645",
