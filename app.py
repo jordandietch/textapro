@@ -119,7 +119,7 @@ def pro_response():
     from_number = request.values.get('From')
     from_body = request.values.get('Body')
 
-    message_body = message_response(from_number, from_number, from_body)
+    message_body = message_response(from_number, from_body)
     message.body(message_body)
 
     response.append(message)
