@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 import os
 import phonenumbers
+import re
 from twilio.twiml.messaging_response import Message, MessagingResponse
 from twilio.rest import Client
 from wtforms import StringField, ValidationError, validators
@@ -25,6 +26,10 @@ from _email import send_email
 
 def get_timedelta(a_datetime):
     return datetime.today() - a_datetime
+
+
+def remove_telephone_chars(telephone):
+    return re.sub("\D", "", telephone)
 
 
 class PhoneForm(FlaskForm):
@@ -72,6 +77,9 @@ def message_response(from_number, from_body='web form'):
         return 'Ok we\'ve cancelled your request'
     elif check_telephone.is_verified is False:
         return 'We\'ve received your request, but please text Yes to continue or No to cancel'
+    else:
+        return None
+
 
 
 @app.route('/', methods=('GET', 'POST'))
@@ -81,10 +89,10 @@ def index():
         try:
             telephone = form.telephone
             form.validate_phone(telephone)
-            message_body = message_response(telephone.data)
+            message_body = message_response("+1"+remove_telephone_chars(telephone.data))
             if message_body:
                 twilio_client.messages.create(
-                    to=telephone.data,
+                    to=remove_telephone_chars("+1"+telephone.data),
                     from_="+18057492645",
                     body=message_body)
             flash('Thank You')
