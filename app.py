@@ -32,6 +32,13 @@ def remove_telephone_chars(telephone):
     return re.sub("\D", "", telephone)
 
 
+def message_admin(from_phone):
+    twilio_client.messages.create(
+        to=app.config['PHONE_ADMIN'],
+        from_="+18057492645",
+        body='New lead from %s' % from_phone)
+
+
 class PhoneForm(FlaskForm):
     telephone = StringField('Telephone', [validators.DataRequired()], )
 
@@ -53,6 +60,7 @@ def message_response(from_number, from_body='web form'):
     if check_telephone is None:
         db.session.add(Lead(from_body, from_number))
         db.session.commit()
+        message_admin(from_number)
         send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Phone Number',
                    'mail/contact_me', telephone=from_number)
         return 'Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel'
