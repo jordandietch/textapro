@@ -129,9 +129,9 @@ def pro_response():
 
     response.append(message)
 
-    try:
+    if message_body:
         return str(response)
-    except:
+    else:
         return '', 204
 
 
