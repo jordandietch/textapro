@@ -85,3 +85,13 @@ footer p {
     }
 
 }
+
+@media (min-width: 768px) {
+    blockquote{
+        margin-top: 0rem;
+    }
+    .card {
+        width: 33.33%;
+    }
+
+}
