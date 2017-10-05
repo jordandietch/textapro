@@ -13,6 +13,8 @@ blockquote{
 .jumbotron {
   padding-top: 6rem;
   padding-bottom: 6rem;
+    padding-left: 0rem;
+    padding-right: 0rem;
   margin-bottom: 0;
   background-color: #fff;
 }
