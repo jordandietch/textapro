@@ -8,6 +8,7 @@ class Config(object):
     CSRF_ENABLED = True
     SECRET_KEY = 'this-really-needs-to-be-changed'
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    MAIL_ON = False
     MAIL_SERVER = 'smtp.mailgun.org'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
@@ -15,9 +16,12 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     PHONE_ADMIN = os.environ.get('PHONE_ADMIN')
+    TEST_PHONE = os.environ.get('TEST_PHONE')
+    TWILIO_PHONE = os.environ.get('TWILIO_PHONE')
 
 class ProductionConfig(Config):
     DEBUG = False
+    MAIL_ON = True
 
 
 class StagingConfig(Config):

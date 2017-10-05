@@ -15,6 +15,29 @@ Feature: #Enter feature name here
   Scenario: # Enter scenario name here
     # Enter steps here
     Given a homeowner has the text a pro number
-    When they send a text
-    Then send a text to the admins
-    And send an email to the admins
+    When they send their first text
+    Then send the homeowner a text asking them to confirm their phone number
+
+  Scenario: # Enter scenario name here
+    # Enter steps here
+    Given a homeowner wants to respond after 7 days
+    When they send a text more than 7 days after their original text
+    Then send the homeowner a text letting them know we are matching them with a contractor
+
+  Scenario: # Enter scenario name here
+    # Enter steps here
+    Given a homeowner wants to confirm their phone number
+    When they respond back to confirm their phone number
+    Then message them again letting them know we will now match them
+
+  Scenario: # Enter scenario name here
+    # Enter steps here
+    Given a homeowner has already confirmed their phone number
+    When they respond back to cancel
+    Then don't message them again
+
+  Scenario: # Enter scenario name here
+    # Enter steps here
+    Given a homeowner has not already confirmed their phone number
+    When they respond back with "no"
+    Then message them to let them know we are cancelling their request

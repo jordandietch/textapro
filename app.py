@@ -29,13 +29,16 @@ def get_timedelta(a_datetime):
 
 
 def remove_telephone_chars(telephone):
-    return re.sub("\D", "", telephone)
+    if telephone.startswith('+1'):
+        return re.sub("\D", "", telephone[2:])
+    else:
+        return re.sub("\D", "", telephone)
 
 
 def message_admin(from_phone):
     twilio_client.messages.create(
         to=app.config['PHONE_ADMIN'],
-        from_="+18057492645",
+        from_=app.config['TWILIO_PHONE'],
         body='%s confirmed their phone number' % from_phone)
 
 
@@ -60,33 +63,31 @@ def message_response(from_number, from_body='web form'):
     if check_telephone is None:
         db.session.add(Lead(from_body, from_number))
         db.session.commit()
-        return 'Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel'
-    # elif session['counter'] >= 7:
-    #     return None
+        return 'Text Yes to verify your phone number so that we can connect you with a contractor, or No to cancel', False
     elif get_timedelta(check_telephone.received_on).days >= 2:
-        session['counter'] = 7
-        return 'Hold tight. We are in the process of connecting you with a contractor.'
+        return 'Hold tight. We are in the process of connecting you with a contractor.', True
     elif from_body.lower() == 'yes' and check_telephone.is_verified is False:
         check_telephone.is_verified = True
         db.session.add(check_telephone)
         db.session.commit()
         message_admin(from_number)
-        send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Confirmed Phone Number',
-                   'mail/contact_me', telephone=from_number)
-        return 'Thanks for verifying your number. We will connect you with a contractor shortly'
+        if app.config['MAIL_ON'] is True:
+            send_email(current_app.config['MAIL_ADMIN'], 'Text a Pro Confirmed Phone Number',
+                    'mail/contac    t_me', telephone=from_number)
+        return 'Thanks for verifying your number. We will connect you with a contractor shortly', True
     elif from_body.lower() == 'yes' and check_telephone.is_verified is True:
         return 'Hold tight. We are in the process of connecting you with a contractor.'
     elif from_body.lower() == 'no' and check_telephone.is_verified is True:
-        return None
+        return None, True
     elif from_body.lower() == 'no' and check_telephone.is_verified is False:
         check_telephone.is_verified = False
         db.session.add(check_telephone)
         db.session.commit()
-        return 'Ok we\'ve cancelled your request'
+        return 'Ok we\'ve cancelled your request', True
     elif check_telephone.is_verified is False:
-        return 'We\'ve received your request, but please text Yes to continue or No to cancel'
+        return 'We\'ve received your request, but please text Yes to continue or No to cancel', True
     else:
-        return None
+        return None, True
 
 
 
@@ -98,13 +99,17 @@ def index():
             telephone = form.telephone
             form.validate_phone(telephone)
             message_body = message_response("+1"+remove_telephone_chars(telephone.data))
-            if message_body:
+            if message_body[0] and message_body[1] is False:
                 twilio_client.messages.create(
                     to=remove_telephone_chars("+1"+telephone.data),
-                    from_="+18057492645",
+                    from_=app.config['TWILIO_PHONE'],
                     body=message_body)
-            flash('Thank You')
-            return redirect('/thank-you')
+            if message_body[1]:
+                flash('Thank you for submitting. Please check your phone.')
+                return redirect('/')
+            else:
+                flash('Thank You')
+                return redirect('/thank-you')
         except:
             flash('Please enter a valid phone number.')
             return redirect('/')
@@ -132,12 +137,18 @@ def pro_response():
     from_number = request.values.get('From')
     from_body = request.values.get('Body')
 
-    message_body = message_response(from_number, from_body)
-    message.body(message_body)
+    if not from_body:
+        from_body = 'web form'
+
+    if session['counter'] >= 7:
+        message.body(None)
+    else:
+        message_body = message_response(from_number, from_body)
+        message.body(message_body[0])
 
     response.append(message)
 
-    if message_body:
+    if message_body[0]:
         return str(response)
     else:
         return '', 204

@@ -1,24 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <form method="POST" action="/">
-        {{ form.csrf_token }}
-        {{ form.telephone.label }} {{ form.telephone(size=16) }}
-        <input type="submit" value="Go">
-    </form>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {#    <link rel="icon" href="../../favicon.ico">#}
 
-</body>
+    <title>Album example for Bootstrap</title>
+
+    <!-- Bootstrap core CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/main.css" rel="stylesheet">
+    <script src="https://use.fontawesome.com/a5f7a37a30.js"></script>
+  </head>
+
+  <body>
+
+    <div class="collapse navbar-light" id="navbarHeader">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-8 py-4">
+            <h4 class="text-white">About</h4>
+            <p class="text-muted">Add some information about the album below, the author, or any other background context. Make it a few sentences long so folks can pick up some informative tidbits. Then, link them off to some social networking sites or contact information.</p>
+          </div>
+          <div class="col-sm-4 py-4">
+            <h4 class="text-white">Contact</h4>
+            <ul class="list-unstyled">
+              <li><a href="#" class="text-white">Follow on Twitter</a></li>
+              <li><a href="#" class="text-white">Like on Facebook</a></li>
+              <li><a href="#" class="text-white">Email me</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="navbar navbar-light">
+      <div class="container d-flex justify-content-between">
+        <a href="#" class="navbar-brand"><i class="fa fa-wrench"></i> Text A Pro</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+    </div>
+
+
+
+    <section class="jumbotron text-left" style="background: url('/static/images/catt-liu-1624.jpg') no-repeat center #eee; background-size: cover; border-radius: 0px; box-shadow: inset 0 100px 100px 0px rgba(0,0,0,0.6); color: #ffffff">
+      <div class="container">
+          <h1 class="jumbotron-heading">Text us any plumbing project at<br><a class="text-info underline" href="tel:1-408-555-5555"><strong>(555) 555-5555</strong></a>, and we'll find you a local plumber</h1>
+        <p>
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                  <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+            <form method="POST" action="/">
+                {{ form.csrf_token }}
+                <p class="lead">Or submit your phone to connect with a plumber in <i class="fa fa-map-marker text-danger"></i> Evanston, IL</p>
+                <div class="input-group">
+                    {{ form.telephone(size=16, class_="form-control input-lg", placeholder="Enter your phone number...") }}
+                    <span class="input-group-btn">
+                        <input type="submit" value="Find a plumber" class="btn btn-primary">
+                    </span>
+                </div>
+            </form>
+        </p>
+      </div>
+    </section>
+
+    <div class="album text-muted">
+        <h2 style="
+    font-weight: 300;
+    text-align: center;
+    /* margin-bottom: 35px; */
+">How Text a Pro Works</h2>
+        <hr style="
+    border-width: 3px;
+    margin-bottom: 2rem;
+    max-width: 50px;
+    border-color: #0275d8;
+">
+      <div class="container">
+
+        <div class="row">
+          <div class="card">
+              <h5 style="
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 15px;
+"><i class="fa fa-mobile-phone" aria-hidden="true"></i> Text us your project</h5>
+            <img class="img-fluid" src="https://images.unsplash.com/1/iphone-4-closeup.jpg?dpr=2&auto=format&fit=crop&w=1500&h=1000&q=80&cs=tinysrgb&crop=" alt="Card image cap">
+              <p class="card-text">We're here to help you through your plumbing project. Text <a class="text-info underline" href="tel:1-408-555-5555"><strong>(555) 555-5555</strong></a> today, and we will connect you with the best plumbers.</p>
+          </div>
+          <div class="card">
+              <h5 style="
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 15px;
+"><i class="fa fa-wrench" aria-hidden="true"></i> We find local plumbers</h5>
+            <img class="img-fluid" src="/static/images/david-siglin-87978.jpg" alt="Card image cap">
+            <p class="card-text">After you text us your project, we do the research to match you with up to 3 top plumbers</p>
+          </div>
+          <div class="card">
+              <h5 style="
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 15px;
+"><i class="fa fa-check" aria-hidden="true"></i> Get project estimates</h5>
+            <img class="img-fluid" src="https://images.unsplash.com/photo-1504247143580-b04f71ee96c0?dpr=2&auto=format&fit=crop&w=1500&h=1001&q=80&cs=tinysrgb&crop=" alt="Card image cap">
+            <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+        <section style="
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+"><div class="container"><div class="row"><div class="col-md-8"><h2 style="
+    font-weight: 300;
+    text-align: center;
+    /* margin-bottom: 35px; */
+">Our pros are qualified for all your projects</h2>
+            <hr style="
+    border-width: 3px;
+    margin-bottom: 2rem;
+    max-width: 50px;
+    border-color: #0275d8;
+">
+            <div class="row mt-3">
+                <div class="col-sm-6">
+                            <ul>
+            <li>Clear a drain or blockage</li>
+            <li>Clear a sewer main</li>
+            <li>Drain camera work</li>
+            <li>Faucets, fixtures, or pipes</li>
+            <li>Sump pump</li>
+        </ul>
+                </div>
+                <div class="col-sm-6">
+                            <ul>
+            <li>Well pump</li>
+            <li>Septic system, sewers, or water mains</li>
+            <li>Sprinkler systems</li>
+            <li>Water heater</li>
+            <li>Water softening and purification</li>
+        </ul>
+                </div>
+            </div>
+        </div>
+            <div class="col-md-4">
+<img class="img-fluid" src="/static/images/dan-watson-4326.jpg"></div></div></div></section>
+
+<section class="jumbotron text-left" style="background: url('/static/images/sweet-ice-cream-photography-386858.jpg') no-repeat center #eee;background-size: cover;border-radius: 0px;box-shadow: inset 0 200px 200px 0px rgba(0,0,0,0.6);color: #ffffff; padding-top: 6rem; padding-bottom: 12rem;">
+      <div class="container-fluid">
+          <h2 class="jumbotron-heading">Finding you a top plumber is our specialty<br>Text <a class="text-info underline" href="tel:1-408-555-5555"><strong>(555) 555-5555</strong></a>, to find a plumber</h2><p class="lead">We work with skilled plumbers, ready to handle all your plumbing projects<br>Let's tackle your plumbing project today</p><button type="button" class="btn btn-lg btn-info">Find a plumber</button>
+      </div>
+    </section>
+
+    <section style="
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+"><div class="container"><h2 style="
+    font-weight: 300;
+    text-align: center;
+    /* margin-bottom: 35px; */
+">Trusted by homeowners to handle all your plumbing projects</h2><hr style="
+    border-width: 3px;
+    margin-bottom: 2rem;
+    max-width: 50px;
+    border-color: #0275d8;
+"><div class="row"><div class="col-md-3"><img class="img-fluid" src="/static/images/brooke-cagle-193476.jpg"></div><div class="col-md-9"><blockquote class="blockquote">
+    <p>"I texted my project, and I was quickly matched with several plumbers. Within minutes I was able to get a estimates for my leaky faucet. A trusty plumber came out to my home, and they were able to complete the project in no time at all. I highly recommend this service."</p>
+    <cite title="Source Title">Jessica from Evanston, IL</cite>
+  </blockquote></div></div></div></section>
+
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+            <a class="text-muted" href="#">Terms of use</a> |
+            <a class="text-muted" href="#">Privacy Policy</a> |
+            <a href="#">Back to top</a>
+        </p>
+        <p class="text-muted"> © 2017, Text A Pro. All Rights Reserved</p>
+      </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="/static/js/holder.min.js"></script>
+    <script>
+      $(function () {
+        Holder.addTheme("thumb", { background: "#55595c", foreground: "#eceeef", text: "Thumbnail" });
+      });
+    </script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="/static/js/ie10-viewport-bug-workaround.js"></script>
+  </body>
 </html>
